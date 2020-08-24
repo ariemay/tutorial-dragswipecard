@@ -13,49 +13,44 @@ let ourscreen = UIScreen.main
 struct ContentView: View {
     @State var viewState = CGSize.zero
     @State var currentHeight: Int = 0
-    @State var bottomPadding: CGFloat = 30
-    @State var confWidth: CGFloat = ourscreen.bounds.width * 0.9
     
     var body: some View {
-        VStack {
-            Spacer()
+        VStack (alignment: .center) {
             ZStack {
-                Card(open: $currentHeight, confWidth: $confWidth)
-                    .offset(y: viewState.height)
-                    .animation(.spring())
-                    .foregroundColor(Color.white)
-                    .cornerRadius(30)
-                    .onAppear(perform: {
-                        self.viewState = CGSize(width: 0, height: 400)
-                        self.currentHeight = 400
-                    })
-                    .gesture(DragGesture()
-                        .onChanged {
-                            value in
-                            if (self.viewState.height > -1.0) && (self.currentHeight != 400) {
-                                self.viewState = value.translation
-                            } else if (self.currentHeight == 400) && (value.translation.height < 0) && (value.translation.height > -144) {
-                                self.viewState = value.translation
-                            }
-                    }
-                    .onEnded{
-                        value in
-                        if self.viewState.height > 200 {
+                VStack (alignment: .center) {
+                    Spacer()
+                    Card(open: $currentHeight)
+                        .offset(y: viewState.height)
+                        .cornerRadius(30)
+                        .animation(.spring())
+                        .foregroundColor(Color.white)
+                        .onAppear(perform: {
                             self.viewState = CGSize(width: 0, height: 400)
                             self.currentHeight = 400
-                            self.bottomPadding = 30
-                            self.confWidth = ourscreen.bounds.width * 0.9
-                        } else {
-                            self.viewState = CGSize(width: 0, height: 0)
-                            self.currentHeight = 0
-                            self.bottomPadding = 0
-                            self.confWidth = ourscreen.bounds.width
+                        })
+                        .gesture(DragGesture()
+                            .onChanged {
+                                value in
+                                if (self.viewState.height > -1.0) && (self.currentHeight != 400) {
+                                    self.viewState = value.translation
+                                } else if (self.currentHeight == 400) && (value.translation.height < 0) && (value.translation.height > -144) {
+                                    self.viewState = value.translation
+                                }
                         }
-                        }
-                )
+                        .onEnded{
+                            value in
+                            if self.viewState.height > 200 {
+                                self.viewState = CGSize(width: 0, height: 400)
+                                self.currentHeight = 400
+                            } else {
+                                self.viewState = CGSize(width: 0, height: 0)
+                                self.currentHeight = 0
+                            }
+                            }
+                        )
+                }
+                .shadow(radius: 50)
             }
-            .shadow(radius: 20)
-            .padding(.bottom, self.bottomPadding)
         }
         .edgesIgnoringSafeArea(.bottom)
     }
@@ -64,12 +59,13 @@ struct ContentView: View {
 struct Card: View {
     @State var heightValue = CGFloat(500.0)
     @Binding var open: Int
-    @Binding var confWidth: CGFloat
     
     var body: some View {
         ZStack (alignment: .top) {
             Rectangle()
-                .frame(width: self.confWidth, height: self.heightValue, alignment: .bottom)
+                .frame(height: self.heightValue, alignment: .bottom)
+                .padding(.bottom, (open == 0) ? 0 : 20)
+                .padding(.horizontal, (open == 0) ? 0 : 20)
             VStack {
                 HStack {
                     ForEach(0..<4) {number in
@@ -92,7 +88,7 @@ struct Card: View {
                             }
                         }
                     }
-                    .animation(.easeIn)
+                    .animation(.easeInOut)
                     HStack {
                         ForEach(0..<4) {_ in
                             Circle()
@@ -100,7 +96,7 @@ struct Card: View {
                                 .frame(width: 80, height: 80, alignment: .center)
                         }
                     }
-                    .animation(.easeIn)
+                    .animation(.easeInOut)
                     HStack {
                         ForEach(0..<4) {_ in
                             Circle()
@@ -108,7 +104,7 @@ struct Card: View {
                                 .frame(width: 80, height: 80, alignment: .center)
                         }
                     }
-                    .animation(.easeIn)
+                    .animation(.easeInOut)
                 }
             }
             .padding(.top, 10)
